@@ -16,7 +16,6 @@ public class Window {
     private long glfwWindow = NULL;
 
     public void setGlfwWindow() {this.glfwWindow = glfwCreateWindow(getWidth(),getHeight(),getTitle(),NULL,NULL);}
-    public long getGlfwWindow() {return glfwWindow;}
     public String getTitle() {return title;}
     public void setTitle(String title) {this.title = title;}
     public int getHeight() {return height;}
@@ -43,8 +42,8 @@ public class Window {
         init();
         loop();
         //free memory
-        glfwFreeCallbacks(getGlfwWindow());
-        glfwDestroyWindow(getGlfwWindow());
+        glfwFreeCallbacks(glfwWindow);
+        glfwDestroyWindow(glfwWindow);
 
         //terminate glfw and free the error callback
         glfwTerminate();
@@ -58,12 +57,7 @@ public class Window {
             throw new IllegalStateException("Unable to initialize GLFW");
         }
 
-        //mouse callbacks
-        glfwSetCursorPosCallback(getGlfwWindow(),MouseListener::mousePosCallback);
-        glfwSetMouseButtonCallback(getGlfwWindow(),MouseListener::mouseButtonCallback);
-        glfwSetScrollCallback(getGlfwWindow(),MouseListener::mouseScrollCallback);
-        //keyboard listeners
-        
+
 
         //configure GLFW
         glfwDefaultWindowHints();
@@ -73,9 +67,15 @@ public class Window {
 
         //create window
         setGlfwWindow();
-        if(getGlfwWindow() == NULL){
+        if(glfwWindow == NULL){
             throw new IllegalStateException("Failed to Create GLFW window");
         }
+        //mouse callbacks
+        glfwSetCursorPosCallback(glfwWindow,MouseListener::mousePosCallback);
+        glfwSetMouseButtonCallback(glfwWindow,MouseListener::mouseButtonCallback);
+        glfwSetScrollCallback(glfwWindow,MouseListener::mouseScrollCallback);
+        //keyboard listeners
+        glfwSetKeyCallback(glfwWindow,KeyListener::keyCallBack);
 
         //make OpenGL context current
         glfwMakeContextCurrent(glfwWindow);
@@ -83,19 +83,24 @@ public class Window {
         glfwSwapInterval(1);
 
         //now that window is created show window
-        glfwShowWindow(getGlfwWindow());
+        glfwShowWindow(glfwWindow);
         //make sure you use bindings
         GL.createCapabilities();
     }
     public void loop(){
-        while(!glfwWindowShouldClose(getGlfwWindow())){
+        while(!glfwWindowShouldClose(glfwWindow)){
             //Poll Events
             glfwPollEvents();
-            //but color into color buffer
-            glClearColor(1.0f,0.0f,0.0f,1.0f);
-            //clear buffer bit and flush
-            glClear(GL_COLOR_BUFFER_BIT);
-            glfwSwapBuffers(getGlfwWindow());
+
+
+            glClearColor(1.0f,0.0f,0.0f,1.0f);//but color into color buffer
+            glClear(GL_COLOR_BUFFER_BIT); //clear buffer bit and flush
+
+            if(KeyListener.isKeyPressed(GLFW_KEY_SPACE)){
+                System.out.println("pressed!");
+            }
+
+            glfwSwapBuffers(glfwWindow);
         }
 
     }
