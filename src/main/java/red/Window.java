@@ -43,6 +43,7 @@ public class Window {
         switch (newScene){
             case 0:
                 currentScene = new LevelScene();
+                currentScene.init();
                 break;
             default:
                 assert false: "Unkown scene " + newScene +"?";
@@ -105,13 +106,14 @@ public class Window {
         glfwShowWindow(glfwWindow);
         //make sure you use bindings
         GL.createCapabilities();
+        //initialize scene
         Window.changeScene(0);
     }
     public void loop(){
         float beginTime = Time.getTime();
         float endTime;
         float dt = -1.0f;
-        System.out.println("before loop");
+
 
         while(!glfwWindowShouldClose(glfwWindow)){
             //Poll Events
