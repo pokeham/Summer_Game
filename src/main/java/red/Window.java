@@ -30,7 +30,7 @@ public class Window {
     //only one window object can be had at a time
     private static Window window = null;
     private Window(){
-        setHeight(1000);
+        setHeight(1080);
         setTitle("Test");
         setWidth(1920);
         r = 1.0f;

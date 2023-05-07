@@ -8,6 +8,9 @@
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec4 aColor;
 
+uniform mat4 uProj;
+uniform mat4 uView;
+
 //attribute to be sent to fragment shader
 out vec4 fColor;
 
@@ -17,7 +20,7 @@ void main(){
 
     //vector of size four where aPos is the first 3 elements and a 1 is the last element
     //to be sent
-    gl_Position = vec4(aPos, 1.0);
+    gl_Position = uProj*uView*vec4(aPos, 1.0);
 }
 //-----------------//
 ///fragment shader///

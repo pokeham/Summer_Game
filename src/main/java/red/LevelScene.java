@@ -1,5 +1,6 @@
 package red;
 
+import org.joml.Vector2f;
 import org.lwjgl.BufferUtils;
 import renderer.Shader;
 
@@ -7,6 +8,7 @@ import java.awt.event.KeyEvent;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
+import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL30.*;
 
@@ -14,10 +16,10 @@ public class LevelScene extends Scene{
     private int vboID, vaoID, eboID;
     private float[] vertexArray = {
         //position                  //color
-         0.5f,-0.5f,0.0f,           1.0f,0.0f,0.0f,1.0f,//bottom right(red)     0
-         0.5f, 0.5f,0.0f,           0.0f,0.0f,1.0f,1.0f,//top right(blue)       1
-        -0.5f,-0.5f,0.0f,           1.0f,1.0f,0.0f,1.0f,//bottom left(yellow?)  2
-        -0.5f, 0.5f,0.0f,           0.0f,1.0f,0.0f,1.0f//top left(green)        3
+         100.5f, 0.5f,0.0f,           1.0f,0.0f,0.0f,1.0f,//bottom right(red)     0
+         100.5f,100.5f,0.0f,           0.0f,0.0f,1.0f,1.0f,//top right(blue)       1
+         0.5f,0.5f,0.0f,           1.0f,1.0f,0.0f,1.0f,//bottom left(yellow?)  2
+         0.5f, 100.5f,0.0f,           0.0f,1.0f,0.0f,1.0f//top left(green)        3
     };
     //IMPORTANT: MUST BE IN CCW ORDER
     private int[] elementArray = {
@@ -25,16 +27,54 @@ public class LevelScene extends Scene{
         0,3,2 //bottom left triangle
 
     };
+    private float theta = 0.0f;
+
+    private float[] cubeVertexArray = {
+            //position of each point           //color of eah point (all red for now)
+            -0.5f,-0.5f,-0.5f,                 1.0f,0.0f,0.0f,1.0f, // 0   bottom left      front face
+            -0.5f, 0.5f,-0.5f,                 1.0f,0.0f,0.0f,1.0f, // 1   top left
+             0.5f, 0.5f,-0.5f,                 1.0f,0.0f,0.0f,1.0f, // 2   top right
+             0.5f,-0.5f,-0.5f,                 1.0f,0.0f,0.0f,1.0f, // 3   bottom right
+
+             0.5f,-0.5f, 0.5f,                 0.0f,0.0f,1.0f,1.0f, // 4    bottom right                back face (looking from front)
+             0.5f, 0.5f, 0.5f,                 0.0f,0.0f,1.0f,1.0f, // 5    top right
+            -0.5f, 0.5f, 0.5f,                 0.0f,0.0f,1.0f,1.0f, // 6    top left
+            -0.5f,-0.5f, 0.5f,                 0.0f,0.0f,1.0f,1.0f, // 7    top right
+    };
+    private int[] cubeElementArray = {
+
+            //left
+            0,1,6,
+            6,7,0,
+            //right
+            5,2,4,
+            2,3,4,
+            //back
+            5,6,7,
+            7,4,5,
+            //front
+            3,2,1,
+            1,0,3,
+            //top
+            1,2,5,
+            5,6,1,
+            //bottom
+            4,7,0,
+            0,3,4
+    };
+
 
     private Shader defaultShader;
-    public LevelScene(){
+    public LevelScene() {
 
     }
-
     @Override
     public void update(float dt) {
+        camera.setPosition(new Vector2f(MouseListener.get().getX()*-1,MouseListener.get().getY()-1040.0f));
 
         defaultShader.use();
+        defaultShader.uploadMat4f("uProj",camera.getProjectionMatrix());
+        defaultShader.uploadMat4f("uView",camera.getViewMatrix());
         //bind VAO
         glBindVertexArray(vaoID);
 
@@ -43,7 +83,7 @@ public class LevelScene extends Scene{
         glEnableVertexAttribArray(1);
 
         //draw          //how to       //how many          //type       //start@
-        glDrawElements(GL_TRIANGLES,elementArray.length,GL_UNSIGNED_INT,0);
+        glDrawElements(GL_TRIANGLES,cubeElementArray.length,GL_UNSIGNED_INT,0);
 
         //unbind everything
         glDisableVertexAttribArray(0);
@@ -55,6 +95,7 @@ public class LevelScene extends Scene{
 
     @Override
     public void init() {
+        this.camera = new Camera(new Vector2f());
         defaultShader= new Shader("assets/shaders/default.glsl");
         defaultShader.compile();
         //===============================================================
