@@ -1,6 +1,7 @@
 package red;
 
 import org.joml.Vector2f;
+import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 import renderer.Shader;
 
@@ -63,6 +64,7 @@ public class LevelScene extends Scene{
             0,3,4
     };
 
+    private float offsetX = 0.0f;
 
     private Shader defaultShader;
     public LevelScene() {
@@ -70,11 +72,29 @@ public class LevelScene extends Scene{
     }
     @Override
     public void update(float dt) {
-        camera.setPosition(new Vector2f(MouseListener.get().getX()*-1,MouseListener.get().getY()-1040.0f));
+
+
+
+        if(KeyListener.isKeyPressed(GLFW_KEY_D)){
+            offsetX = offsetX + 0.1f;
+            Camera.get().setPosition(new Vector3f(Camera.get().getPosition().x+10.0f,Camera.get().getPosition().y,Camera.get().getPosition().z));
+        }
+        if(KeyListener.isKeyPressed(GLFW_KEY_A)){
+            offsetX = offsetX - 0.1f;
+            Camera.get().setPosition(new Vector3f(Camera.get().getPosition().x+10.0f,Camera.get().getPosition().y,Camera.get().getPosition().z));
+        }
+        if(KeyListener.isKeyPressed(GLFW_KEY_W)){
+
+        }
+        if(KeyListener.isKeyPressed(GLFW_KEY_S)){
+
+        }
+        System.out.println(Camera.get().getPosition().z);
+        Camera.get().setPosition(new Vector3f((MouseListener.getX())-1870+offsetX,-1*MouseListener.getY(),Camera.get().getPosition().z));
 
         defaultShader.use();
-        defaultShader.uploadMat4f("uProj",camera.getProjectionMatrix());
-        defaultShader.uploadMat4f("uView",camera.getViewMatrix());
+        defaultShader.uploadMat4f("uProj",Camera.get().getProjectionMatrix());
+        defaultShader.uploadMat4f("uView",Camera.get().getViewMatrix());
         //bind VAO
         glBindVertexArray(vaoID);
 
@@ -95,7 +115,6 @@ public class LevelScene extends Scene{
 
     @Override
     public void init() {
-        this.camera = new Camera(new Vector2f());
         defaultShader= new Shader("assets/shaders/default.glsl");
         defaultShader.compile();
         //===============================================================
